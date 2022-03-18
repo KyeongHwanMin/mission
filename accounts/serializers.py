@@ -3,7 +3,8 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
-User = get_user_model()
+# User = get_user_model()
+from accounts.models import User
 
 
 class SignupSerializer(ModelSerializer):
@@ -13,9 +14,14 @@ class SignupSerializer(ModelSerializer):
 
 
 class LoginSerializer(ModelSerializer):
+
+    username = serializers.CharField(read_only=True)
+    email = serializers.CharField(read_only=True)
+    phone_number = serializers.CharField(read_only=True)
+
     class Meta:
         model = User
-        fields = ['username', 'password']
+        fields = ['username', 'email', 'phone_number', 'password']
 
 
 class MyinfoSerializer(ModelSerializer):

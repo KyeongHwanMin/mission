@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts import models
 from accounts.models import User
-from accounts.serializers import SignupSerializer, MyinfoSerializer, ChangePasswordSerializer
+from accounts.serializers import SignupSerializer, MyinfoSerializer, ChangePasswordSerializer, LoginSerializer
 
 
 class Auth(APIView):
@@ -54,21 +54,63 @@ class Signupview(APIView):
         else:
             return Response(data={'error': '인증 되어 있지 않습니다.'}, status=status.HTTP_401_UNAUTHORIZED)
 
-
 class LoginView(APIView):
     def post(self, request):
 
-        user = authenticate(username=request.data['username'], password=request.data['password'])
+        if request.data['password'] is None:
+            return Response(data={'error': '비밀번호를 입력하세요.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if user is not None:
-            if user.is_active:
+        elif request.data['username']:
+            username = request.data['username']
+            user = User.objects.filter(username=username)
+            if user is None:
+                return Response(data={'error': '유저를 찾을 수 없습니다..'}, status=status.HTTP_401_UNAUTHORIZED)
 
-                login(request, user)
-                return Response(data={'success': '로그인 완료'}, status=status.HTTP_200_OK)
-            else:
-                return Response(data={'error': '아이디 또는 비밀번호가 틀립니다.'}, status=status.HTTP_401_UNAUTHORIZED)
+        elif request.data['email']:
+            email = request.data['email']
+            user = User.objects.filter(email=email)
+            if user is None:
+                return Response(data={'error': '유저를 찾을 수 없습니다..'}, status=status.HTTP_401_UNAUTHORIZED)
+        elif request.data['phone_number']:
+            phone_number = request.data['username']
+
         else:
-            return Response(data={'error': '아이디가 존재하지 않습니다.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': '아이디 혹은 이메일 혹은 핸드폰 번호를 입력하세요.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        # username = serializer.validated_data['username']
+        # email = serializer.validated_data['email']
+        # phone_number = serializer.validated_data['phone_number']
+
+        serializer = LoginSerializer(data=request.data)
+        breakpoint
+        if serializer.is_valid():
+            breakpoint()
+            serializer.save()
+            return Response(serializer.data, status=200)
+
+        # username = request.data['username']
+        # password = request.data['password']
+        #
+        # if (username is None) or (password is None):
+        #     return Response(data={'message': 'username 이나 password를 입력해주세요.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # user = User.objects.filter(username=username)
+# class LoginView(APIView):
+#     def post(self, request):
+#         username = request.data['username']
+#         password = request.data['password']
+#
+#         user = authenticate(username=username, password=password)
+#
+#         if user is not None:
+#             if user.is_active:
+#                 login(request, user)
+#                 return Response(data={'success': '로그인 완료'}, status=status.HTTP_200_OK)
+#             else:
+#                 return Response(data={'error': '아이디 또는 비밀번호가 틀립니다.'}, status=status.HTTP_401_UNAUTHORIZED)
+#         else:
+#             return Response(data={'error': '아이디가 존재하지 않습니다.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LogoutView(APIView):
@@ -82,6 +124,7 @@ class MyinfoView(APIView):
         qs = User.objects.filter(username=request.user)
         serializer = MyinfoSerializer(qs, many=True)
         return Response(serializer.data)
+
 
 class ChangePasswordView(generics.UpdateAPIView):
     queryset = User.objects.all()
@@ -103,9 +146,6 @@ class ChangePasswordView(generics.UpdateAPIView):
 #             return Response(data={'success': '비밀번호 변경 완료'}, status=status.HTTP_200_OK)
 #         else:
 #             return Response(data={'error': '인증번호가 틀립니다.'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-
 
 
 # class RegistrationAPI(generics.GenericAPIView):
