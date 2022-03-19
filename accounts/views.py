@@ -57,25 +57,44 @@ class Signupview(APIView):
 class LoginView(APIView):
     def post(self, request):
 
-        if request.data['password'] is None:
-            return Response(data={'error': '비밀번호를 입력하세요.'}, status=status.HTTP_400_BAD_REQUEST)
+        # if request.data['password'] is None:
+        #     return Response(data={'error': '비밀번호를 입력하세요.'}, status=status.HTTP_400_BAD_REQUEST)
+        username = request.data['username']
+        password = request.data['password']
 
-        elif request.data['username']:
-            username = request.data['username']
-            user = User.objects.filter(username=username)
-            if user is None:
-                return Response(data={'error': '유저를 찾을 수 없습니다..'}, status=status.HTTP_401_UNAUTHORIZED)
+        if username and password:
+            if User.objects.filter(username=username).exists():
+                user = User.objects.get(username=username)
+            elif User.objects.filter(email=username).exists():
+                user = User.objects.get(email=username)
+            elif User.objects.filter(phone_number=username).exists():
+                user = User.objects.get(phone_number=username)
+            else:
+                return Response(data={'error': '아이디가 없습니다.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not user.check_password(request.data['password']):
+            return Response(data={'error': '틀린 비밀번호 입니다.'}, status=status.HTTP_401_UNAUTHORIZED)
+        login(request, user)
+        return Response(data={'success': '로그인 완료'}, status=status.HTTP_200_OK)
 
-        elif request.data['email']:
-            email = request.data['email']
-            user = User.objects.filter(email=email)
-            if user is None:
-                return Response(data={'error': '유저를 찾을 수 없습니다..'}, status=status.HTTP_401_UNAUTHORIZED)
-        elif request.data['phone_number']:
-            phone_number = request.data['username']
 
-        else:
-            return Response(data={'error': '아이디 혹은 이메일 혹은 핸드폰 번호를 입력하세요.'}, status=status.HTTP_400_BAD_REQUEST)
+                # if user is None:
+                #     return Response(data={'error': '유저를 찾을 수 없습니다..'}, status=status.HTTP_401_UNAUTHORIZED)
+                #
+                # login(request, user)
+                # return Response(data={'success': '로그인 완료'}, status=status.HTTP_200_OK)
+        # elif request.data['email']:
+        #     email = request.data['email']
+        #     user = User.objects.filter(username=email).first()
+        #     if user is None:
+        #         return Response(data={'error': '유저를 찾을 수 없습니다..'}, status=status.HTTP_401_UNAUTHORIZED)
+        #     if not user.check_password(request.data['password']):
+        #         return Response(data={'error': '틀린 비밀번호 입니다.'}, status=status.HTTP_401_UNAUTHORIZED)
+        #     login(request, user)
+        #     return Response(data={'success': '로그인 완료'}, status=status.HTTP_200_OK)
+        # elif request.data['phone_number']:
+        #     phone_number = request.data['username']
+        # else:
+        #     return Response(data={'error': '아이디, 비밀번호를 입력하세요.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
         # username = serializer.validated_data['username']
@@ -83,7 +102,7 @@ class LoginView(APIView):
         # phone_number = serializer.validated_data['phone_number']
 
         serializer = LoginSerializer(data=request.data)
-        breakpoint
+
         if serializer.is_valid():
             breakpoint()
             serializer.save()

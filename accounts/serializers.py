@@ -15,13 +15,14 @@ class SignupSerializer(ModelSerializer):
 
 class LoginSerializer(ModelSerializer):
 
-    username = serializers.CharField(read_only=True)
-    email = serializers.CharField(read_only=True)
-    phone_number = serializers.CharField(read_only=True)
+    # username = serializers.CharField(read_only=True, required=False)
+    # email = serializers.CharField(read_only=True, required=False)
+    # phone_number = serializers.CharField(read_only=True, required=False)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'phone_number', 'password']
+        fields = ['username', 'password']
+
 
 
 class MyinfoSerializer(ModelSerializer):
