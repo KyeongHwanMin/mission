@@ -1,8 +1,10 @@
 from django.contrib.auth import login, logout
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.models import User, Auth
+from accounts.permission import IsOwner
 from accounts.serializers import SignupSerializer, MyinfoSerializer, ChangePasswordSerializer
 
 
@@ -44,13 +46,13 @@ class SignupView(APIView):
         auth_number = int(serializer.validated_data['auth_number'])
 
         if User.objects.filter(username=username).exists():
-            return Response(data={'error': '이미 존재하는 계정 입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': '이미 존재하는 계정 입니다.'}, status=status.HTTP_409_CONFLICT_BAD_REQUEST)
         if User.objects.filter(email=email).exists():
-            return Response(data={'error': '이미 존재하는 이메일 입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': '이미 존재하는 이메일 입니다.'}, status=status.HTTP_409_CONFLICT_BAD_REQUEST)
         if User.objects.filter(phone_number=phone_number).exists():
-            return Response(data={'error': '이미 존재하는 핸드폰 번호 입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': '이미 존재하는 핸드폰 번호 입니다.'}, status=status.HTTP_409_CONFLICT_BAD_REQUEST)
         if User.objects.filter(nickname=nickname).exists():
-            return Response(data={'error': '이미 존재하는 닉네임 입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': '이미 존재하는 닉네임 입니다.'}, status=status.HTTP_409_CONFLICT_BAD_REQUEST)
 
         try:
             user_auth_number = Auth.objects.get(phone_number=phone_number)
@@ -155,9 +157,19 @@ class LogoutView(APIView):
 
 
 class MyinfoView(APIView):
-    def get(self, request):
-        qs = User.objects.filter(username=request.user)
-        serializer = MyinfoSerializer(qs, many=True)
+    permission_classes = [IsOwner]
+
+    def get_object(self, pk):
+        try:
+            qs = User.objects.get(pk=pk)
+            self.check_object_permissions(self.request, qs)
+            return qs
+        except ObjectDoesNotExist:
+            return None
+
+    def get(self, request, pk):
+        qs = self.get_object(pk)
+        serializer = MyinfoSerializer(qs, context={'request': request})
         return Response(serializer.data)
 
 
@@ -189,4 +201,3 @@ class ChangePasswordView(APIView):
 
         except Auth.DoesNotExist:
             return Response(data={'error': '휴대폰 인증을 하세요.'}, status=status.HTTP_400_BAD_REQUEST)
-
