@@ -87,7 +87,7 @@ class Test(TestCase):
             print(response.json())
         assert response.status_code == 200
 
-    def test_식별_가능한_모든_정보로_로그인_실패(self):
+    def test_로그인_시_식별_가능한_모든_정보가_유효하지_않은_경우_400_응답과_함께_관련_에러메시지가_반환(self):
         create_user(username="test", email="h456522@naver.com", nickname="test",
                     password="test", full_name="test",
                     phone_number="01012345678")
@@ -126,7 +126,7 @@ class Test(TestCase):
         print('결과출력', response)
         print(response.json())
         assert response.status_code == 200
-    def test_비밀번호_초기화_실패_일치하지_않는_인증번호(self):
+    def test_비밀번호_초기화_시_인증번호가_일치하지_않는_경우_400_응답과_함께_관련_에러메세지가_반환(self):
         auth_number = create_auth(phone_number='01012345678')
         create_user(username="test", email="h456522@naver.com", nickname="test",
                     password="test", full_name="test",
@@ -138,14 +138,14 @@ class Test(TestCase):
                 "phone_number": "01012345678",
                 "auth_number": "1234",
                 "password": "qlalfqjsgh1",
-                "password2": "qlalfqj"
+                "password2": "qlalfqjsgh1"
             }
         )
         print('결과출력', response)
         print(response.json())
         assert response.status_code == 400
 
-    def test_비밀번호_초기화_실패_일치하지_않는_비밀번호(self):
+    def test_비밀번호_초기화_시_비밀번호가_일치하지_않는_경우_400_응답과_함께_관련_에러메세지가_반환(self):
         auth_number = create_auth(phone_number='01012345678')
         create_user(username="test", email="h456522@naver.com", nickname="test",
                     password="test", full_name="test",
