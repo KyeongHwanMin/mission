@@ -9,8 +9,7 @@
 
 ### 필요
 
-- Python 3.9.x
-- djangorestframework 3.12.x
+- Python 3.2.x
 - SQL lite3
 
 
@@ -42,7 +41,7 @@ python manage.py runserver
 
 5. 서버 정상 구동 확인
 
-웹 브라우저에서 http://127.0.0.1:8080 로 접속하여 페이지가 나온다면 정상적으로 서버 구동된 것입니다.
+웹 브라우저에서 http://127.0.0.1:8000/account/auth/ 로 접속하여 페이지가 나온다면 정상적으로 서버 구동된 것입니다.
 
 <br>
 
