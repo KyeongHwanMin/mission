@@ -8,7 +8,7 @@ User = get_user_model()
 class SignupSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'email', 'nickname', 'password', 'full_name', 'phone_number', 'auth_number']
+        fields = ['username', 'email', 'nickname', 'password', 'full_name', 'phone_number']
 
 
 class MyinfoSerializer(ModelSerializer):
@@ -24,6 +24,7 @@ class MyinfoSerializer(ModelSerializer):
 
 
 class ChangePasswordSerializer(serializers.Serializer):
+    phone_number = serializers.CharField(write_only=True, required=True)
     auth_number = serializers.CharField(write_only=True, required=True)
     password = serializers.CharField(write_only=True, required=True)
     password2 = serializers.CharField(write_only=True, required=True)

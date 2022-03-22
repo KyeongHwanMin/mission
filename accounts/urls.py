@@ -7,7 +7,7 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='login'),
     path('myinfo/<int:pk>/', MyinfoView.as_view(), name='myinfo'),
-    path('change-password/<int:pk>/', ChangePasswordView.as_view(), name='change-password'),
+    path('change-password/', ChangePasswordView.as_view(), name='change-password'),
     path('api-auth/', include('rest_framework.urls')),
 
 ]

@@ -20,4 +20,3 @@ class User(AbstractUser):
     nickname = models.CharField(max_length=100, verbose_name="별명")
     full_name = models.CharField(max_length=100, verbose_name="이름", null=True)
     phone_number = models.CharField(max_length=13, verbose_name="휴대폰 번호")
-    auth_number = models.IntegerField(null=True, verbose_name="인증 번호")

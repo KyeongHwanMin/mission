@@ -10,6 +10,8 @@
 ### 필요
 
 - Python 3.2.x
+- djangorestframework 3.12.x
+- SQL lite3
 
 
   <br>
@@ -84,8 +86,10 @@ python manage.py runserver
 [요청]
 
 - URL: POST /account/signup/
+- Body 파라미터 설명
+  - 전화번호 인증(선행) 후 회원가입
+    - auth_number: 인증받은 번호를 의미합니다. 
 
-- Body
 
 ```json
 {
@@ -162,7 +166,7 @@ or
 
 | 에러코드 | 설명                          |
 | -------- | ----------------------------- |
-| 400      | 등록된 user가 없는 경우       |
+| 400      | 등록된 user가 없는 경우,      |
 | 401      | Username or Password 틀릴경우 |
 
 
@@ -179,11 +183,15 @@ or
 
 ```json
 {
-  "success": "로그아웃 되었습니다."
-}
+  "username": "test",
+  "password": "1234"
+} 
 ```
 
+[응답]
 
+- 응답에 대한 설명
+  - 성공 응답 시 상태코드:200
 
 
 
@@ -192,7 +200,8 @@ or
 [요청]
 
 - URL : GET /account/myinfo/:pk
-- Path 파라미터 설명 : pk 는 expense의 식별 아이디를 입력합니다
+  - Path 파라미터 설명 : pk 는 myinfo의 식별 아이디를 입력합니다
+
 
 
 
@@ -202,7 +211,7 @@ or
 
 ```json
 {
-    "username": "test7",
+    "username": "test",
     "email": "email@naver.com",
     "nickname": "test",
     "full_name": "test",
@@ -227,11 +236,13 @@ or
 [요청]
 
 - URL:POST /account/change-password/
-
 - Body
+  - 전화번호 인증 후(선행) 비밀번호 재설정
+
 
 ```json
 {
+    "phone_number" : "01023456789",
     "auth_number" : "9241",
     "password" : "password",
     "password2" : "password"
@@ -248,12 +259,7 @@ or
 
 ```json
 {
-  "pk": 7,
-  "email": "email@email.com",
-  "amount": 2,
-  "memo": "test2",
-  "spent_at": "2021-11-25T03:11:27.185208Z",
-  "updated_at": "2021-11-25T03:27:05.634965Z"
+    "success": "비밀번호 초기화 완료"
 }
 ```
 
@@ -262,4 +268,17 @@ or
   
     
 
+## 최종 구현된 범위
 
+- 전화번호 인증 후 회원가입
+- 식별 가능한 모든 정보로 로그인
+- 내 정보 보기 기능
+- 전화번호 인증 후 비밀번호 재설정
+
+
+
+**로그인기능**
+하나의 로그인 API에서 각각의 수단에 따른 로그인 기능을 파라메터 입력 여부에 따라 분기해서 제공.
+장점: 클라이언트 & 백엔드 관리가 단일화. 로그인에 공통적인 로직을 넣기 좋다.
+단점: 특정 수단에 대해서 변경하려고 할 때 사이드 이팩발생, 코드가 길어짐
+단점보완: 로그인 기능별 함수 쪼개기.
